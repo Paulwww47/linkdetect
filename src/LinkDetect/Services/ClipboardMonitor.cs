@@ -143,24 +143,18 @@ public sealed class ClipboardMonitor : IDisposable
                     ? System.Windows.Clipboard.GetText(System.Windows.TextDataFormat.UnicodeText)
                     : null;
 
-                var hasImage = System.Windows.Clipboard.ContainsImage();
-                var image = hasImage ? System.Windows.Clipboard.GetImage() : null;
+                // ClipboardImageReader repairs DIBs whose fourth byte is undefined but was written
+                // as zero (Telegram, WeChat, ...); otherwise the image decodes fully transparent.
+                var image = ClipboardImageReader.Read();
                 if (image is null && System.Windows.Clipboard.ContainsFileDropList())
                 {
                     image = TryLoadFirstImageFile();
                 }
 
-                if (image is null)
+                var hasImage = image is not null;
+                if (image is not null && image.CanFreeze)
                 {
-                    hasImage = false;
-                }
-                else
-                {
-                    hasImage = true;
-                    if (image.CanFreeze)
-                    {
-                        image.Freeze();
-                    }
+                    image.Freeze();
                 }
 
                 if (GetClipboardSequenceNumber() != sequenceNumber)
