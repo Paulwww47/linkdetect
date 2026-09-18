@@ -1,0 +1,25 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkDetect", "src\LinkDetect\LinkDetect.csproj", "{16ED9C5D-D737-4CBD-8A5C-D6E3451F8080}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkDetect.Tests", "tests\LinkDetect.Tests\LinkDetect.Tests.csproj", "{C949E346-92E0-4131-9654-449524270C32}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{16ED9C5D-D737-4CBD-8A5C-D6E3451F8080}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16ED9C5D-D737-4CBD-8A5C-D6E3451F8080}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16ED9C5D-D737-4CBD-8A5C-D6E3451F8080}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16ED9C5D-D737-4CBD-8A5C-D6E3451F8080}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C949E346-92E0-4131-9654-449524270C32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C949E346-92E0-4131-9654-449524270C32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C949E346-92E0-4131-9654-449524270C32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C949E346-92E0-4131-9654-449524270C32}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
