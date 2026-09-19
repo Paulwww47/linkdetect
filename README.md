@@ -19,13 +19,12 @@ LinkDetect 是一个 Windows 剪贴板链接检测工具。它常驻系统托盘
 - Windows 10 或 Windows 11，x64。
 - [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)（运行 framework-dependent 发布版本时需要）。
 
-## 开发与测试
+## 开发
 
 字体资源与来源说明位于 [Assets/Fonts](src/LinkDetect/Assets/Fonts/README.md)，采用 SIL Open Font License 1.1。发布时会自动携带 Assets/Fonts/LICENSE.txt，不需要安装系统字体。
 
 ```powershell
 dotnet restore LinkDetect.sln
-dotnet test LinkDetect.sln
 dotnet run --project .\src\LinkDetect\LinkDetect.csproj
 ```
 
