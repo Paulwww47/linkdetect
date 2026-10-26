@@ -5,6 +5,8 @@
     </ResourceDictionary.MergedDictionaries>
 
     <FontFamily x:Key="UiFontFamily">pack://application:,,,/LinkDetect;component/Assets/Fonts/#Maple Mono NF CN</FontFamily>
+    <!-- 计数只用系统 UI 字体：等宽编程字体的数字字形辨识度差、基线也偏。 -->
+    <FontFamily x:Key="CountFontFamily">Segoe UI, Microsoft YaHei UI</FontFamily>
     <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F6F7F9" />
     <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
     <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#F1F4F9" />

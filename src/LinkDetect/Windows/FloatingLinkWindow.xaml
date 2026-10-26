@@ -53,7 +53,11 @@
                                 ToolTip="复制选中的词" Click="CopyTextButton_OnClick"
                                 AutomationProperties.Name="复制所选"
                                 AutomationProperties.HelpText="把选中的词按原文顺序写入剪贴板。">
-                            <TextBlock x:Name="CopyCountText" FontSize="12" FontWeight="SemiBold" />
+                            <TextBlock x:Name="CopyCountText" FontFamily="{StaticResource CountFontFamily}"
+                                       FontSize="12" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       TextAlignment="Center" Margin="0,0.5,0,0"
+                                       TextOptions.TextFormattingMode="Ideal" />
                         </Button>
                     </StackPanel>
                     <Button x:Name="CloseAllButton" Grid.Column="2" Style="{StaticResource CloseAllButtonStyle}"
