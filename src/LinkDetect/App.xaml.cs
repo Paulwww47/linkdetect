@@ -230,8 +230,7 @@ public partial class App : System.Windows.Application
         }
     }
 
-    private void OnCopyImageRequested(object? sender, EventArgs e)
-    {
+    private void OnCopyImageRequested(object? sender, EventArgs e)    {
         if (_processedImage is null || _clipboardMonitor is null || _floatingWindow is null)
         {
             return;

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -34,7 +35,9 @@ public sealed class ClipboardMonitor : IDisposable
 
     private readonly Dispatcher _dispatcher;
     private readonly CancellationTokenSource _disposeToken = new();
+    private readonly BlockingCollection<uint> _pendingReads = [];
     private HwndSource? _messageSource;
+    private Thread? _readerThread;
     private uint _lastSequenceNumber;
     private bool _suppressNextUpdate;
     private bool _enabled = true;
@@ -75,6 +78,14 @@ public sealed class ClipboardMonitor : IDisposable
         }
 
         _lastSequenceNumber = GetClipboardSequenceNumber();
+
+        _readerThread = new Thread(ReaderLoop)
+        {
+            IsBackground = true,
+            Name = "LinkDetect.ClipboardReader"
+        };
+        _readerThread.SetApartmentState(ApartmentState.STA);
+        _readerThread.Start();
     }
 
     public void SetEnabled(bool enabled)
@@ -118,11 +129,38 @@ public sealed class ClipboardMonitor : IDisposable
         }
 
         _lastSequenceNumber = sequenceNumber;
-        _dispatcher.BeginInvoke(() => _ = ReadClipboardAsync(sequenceNumber));
+        try
+        {
+            _pendingReads.Add(sequenceNumber);
+        }
+        catch (InvalidOperationException)
+        {
+            // 已经 Dispose。
+        }
+
         return IntPtr.Zero;
     }
 
-    private async Task ReadClipboardAsync(uint sequenceNumber)
+    /// <summary>
+    /// 在专用 STA 线程读剪贴板：读数据可能被占用剪贴板的程序阻塞几百毫秒，
+    /// 放在 UI 线程会让整张卡片卡住。
+    /// </summary>
+    private void ReaderLoop()
+    {
+        try
+        {
+            foreach (var sequenceNumber in _pendingReads.GetConsumingEnumerable(_disposeToken.Token))
+            {
+                ReadClipboard(sequenceNumber);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // 正常退出。
+        }
+    }
+
+    private void ReadClipboard(uint sequenceNumber)
     {
         for (var attempt = 0; attempt < RetryCount; attempt++)
         {
@@ -138,10 +176,12 @@ public sealed class ClipboardMonitor : IDisposable
 
             try
             {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
                 var hasText = System.Windows.Clipboard.ContainsText(System.Windows.TextDataFormat.UnicodeText);
                 var text = hasText
                     ? System.Windows.Clipboard.GetText(System.Windows.TextDataFormat.UnicodeText)
                     : null;
+                var textMs = sw.ElapsedMilliseconds;
 
                 // ClipboardImageReader repairs DIBs whose fourth byte is undefined but was written
                 // as zero (Telegram, WeChat, ...); otherwise the image decodes fully transparent.
@@ -150,6 +190,8 @@ public sealed class ClipboardMonitor : IDisposable
                 {
                     image = TryLoadFirstImageFile();
                 }
+
+                var imageMs = sw.ElapsedMilliseconds - textMs;
 
                 var hasImage = image is not null;
                 if (image is not null && image.CanFreeze)
@@ -162,9 +204,8 @@ public sealed class ClipboardMonitor : IDisposable
                     return;
                 }
 
-                ClipboardChanged?.Invoke(
-                    this,
-                    new ClipboardChangedEventArgs(text, hasText, sequenceNumber, image, hasImage));
+                var args = new ClipboardChangedEventArgs(text, hasText, sequenceNumber, image, hasImage);
+                _dispatcher.BeginInvoke(new Action(() => ClipboardChanged?.Invoke(this, args)));
                 return;
             }
             catch (ExternalException)
@@ -176,15 +217,16 @@ public sealed class ClipboardMonitor : IDisposable
 
                 try
                 {
-                    await Task.Delay(RetryDelay, _disposeToken.Token);
+                    _disposeToken.Token.WaitHandle.WaitOne(RetryDelay);
                 }
-                catch (OperationCanceledException)
+                catch (ObjectDisposedException)
                 {
                     return;
                 }
             }
         }
     }
+
 
     public void Dispose()
     {
@@ -194,6 +236,15 @@ public sealed class ClipboardMonitor : IDisposable
         }
 
         _disposed = true;
+        try
+        {
+            _pendingReads.CompleteAdding();
+        }
+        catch (ObjectDisposedException)
+        {
+            // 已释放。
+        }
+
         _disposeToken.Cancel();
 
         if (_messageSource is not null)
@@ -204,6 +255,13 @@ public sealed class ClipboardMonitor : IDisposable
             _messageSource = null;
         }
 
+        if (_readerThread is not null)
+        {
+            _readerThread.Join(TimeSpan.FromSeconds(1));
+            _readerThread = null;
+        }
+
+        _pendingReads.Dispose();
         _disposeToken.Dispose();
     }
 
