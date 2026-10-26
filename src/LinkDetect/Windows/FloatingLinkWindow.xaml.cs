@@ -24,6 +24,8 @@ public partial class FloatingLinkWindow : Window
 {
     private const uint MonitorDefaultToNearest = 0x00000002;
     private const double WorkAreaMargin = 12;
+    private const double FullCardWidth = 456;
+    private const double CompactCardWidth = 152;
 
     private readonly SettingsService _settingsService;
     private readonly WordTokenizer _tokenizer;
@@ -732,6 +734,10 @@ public partial class FloatingLinkWindow : Window
             return;
         }
 
+        // 只有“分词”按钮时收窄卡片，不要留一条空白长条。
+        var compact = !_hasImage && !_state.IsVisible && _chips.Count == 0;
+        UpdateCardWidth(compact ? CompactCardWidth : FullCardWidth);
+
         AutomationProperties.SetName(
             this,
             _hasImage ? "图片预览" : _state.IsVisible ? $"{_state.Links.Count} 个链接" : "文本分词");
@@ -749,6 +755,23 @@ public partial class FloatingLinkWindow : Window
         {
             UpdateLayout();
             ClampToCurrentWorkArea();
+        }
+    }
+
+    private void UpdateCardWidth(double width)
+    {
+        if (Math.Abs(Width - width) < 0.5)
+        {
+            return;
+        }
+
+        var previousWidth = ActualWidth > 0 ? ActualWidth : Width;
+        Width = width;
+
+        if (IsVisible)
+        {
+            // 贴右边缘生长/收缩，避免卡片左右跳。
+            Left += previousWidth - width;
         }
     }
 
