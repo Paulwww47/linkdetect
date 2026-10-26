@@ -20,7 +20,10 @@ public partial class App : System.Windows.Application
     private SettingsService? _settingsService;
     private StartupManager? _startupManager;
     private SettingsWindow? _settingsWindow;
+    private WordTokenizer? _tokenizer;
     private CancellationTokenSource? _imageProcessingCts;
+    private string? _recentlyCopiedText;
+    private DateTime _recentCopyTimestamp;
     private ImagePixelData? _processedImage;
     private double _backgroundThresholdPercent = BackgroundThreshold.DefaultPercent;
     private bool _isPaused;
@@ -39,8 +42,10 @@ public partial class App : System.Windows.Application
         _settingsService = new SettingsService();
         _backgroundThresholdPercent = _settingsService.Current.BackgroundCropThresholdPercent;
         _startupManager = new StartupManager();
-        _floatingWindow = new FloatingLinkWindow(_settingsService);
+        _tokenizer = new WordTokenizer();
+        _floatingWindow = new FloatingLinkWindow(_settingsService, _tokenizer);
         _floatingWindow.CopyImageRequested += OnCopyImageRequested;
+        _floatingWindow.CopyTextRequested += OnCopyTextRequested;
         _clipboardMonitor = new ClipboardMonitor(Dispatcher);
         _clipboardMonitor.ClipboardChanged += OnClipboardChanged;
 
@@ -53,6 +58,10 @@ public partial class App : System.Windows.Application
             startupEnabled: _startupManager.IsEnabled);
 
         _clipboardMonitor.Start();
+
+        // 词典加载在后台完成，避免第一次点“分词”卡半秒。
+        var tokenizer = _tokenizer;
+        _ = Task.Run(tokenizer.WarmUp);
     }
 
     private void OnClipboardChanged(object? sender, ClipboardChangedEventArgs e)
@@ -62,23 +71,38 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        var text = e.HasText && !string.IsNullOrWhiteSpace(e.Text) ? e.Text : null;
+
+        // “复制所选”写入剪贴板会再触发一次更新；此时保持卡片上的分词结果不变。
+        if (text is not null &&
+            string.Equals(text, _recentlyCopiedText, StringComparison.Ordinal) &&
+            DateTime.UtcNow - _recentCopyTimestamp < TimeSpan.FromSeconds(3))
+        {
+            return;
+        }
+
+        _recentlyCopiedText = null;
+
         CancelImageProcessing();
         _processedImage = null;
 
-        var hasLinks = false;
-        if (e.HasText && !string.IsNullOrWhiteSpace(e.Text))
+        var links = LinkExtractor.Extract(text);
+        if (links.Count > 0)
         {
-            var links = LinkExtractor.Extract(e.Text);
-            if (links.Count > 0)
-            {
-                _floatingWindow.ShowLinks(links);
-                hasLinks = true;
-            }
+            _floatingWindow.ShowLinks(links);
         }
-
-        if (!hasLinks)
+        else
         {
             _floatingWindow.HideLinks();
+        }
+
+        if (text is null)
+        {
+            _floatingWindow.HideText();
+        }
+        else
+        {
+            _floatingWindow.ShowText(text);
         }
 
         if (e.HasImage && e.Image is not null)
@@ -223,6 +247,27 @@ public partial class App : System.Windows.Application
         {
             _clipboardMonitor.ClearSuppression();
         }
+    }
+
+    private void OnCopyTextRequested(object? sender, string text)
+    {
+        if (_clipboardMonitor is null || _floatingWindow is null || string.IsNullOrEmpty(text))
+        {
+            return;
+        }
+
+        _recentlyCopiedText = text;
+        _recentCopyTimestamp = DateTime.UtcNow;
+        _clipboardMonitor.SuppressNextClipboardUpdate();
+
+        if (ClipboardTextWriter.TryWrite(text))
+        {
+            _floatingWindow.MarkTextCopied();
+            return;
+        }
+
+        _clipboardMonitor.ClearSuppression();
+        _floatingWindow.MarkTextCopyFailed();
     }
 
     private void OpenSettings()

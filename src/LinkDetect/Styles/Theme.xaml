@@ -158,6 +158,18 @@
         </Setter>
     </Style>
 
+    <Style x:Key="TokenActionButtonStyle" TargetType="Button" BasedOn="{StaticResource QuietButtonStyle}">
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="Padding" Value="10,3" />
+        <Setter Property="Margin" Value="0,0,6,0" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+        <!-- 分层窗口里全透明区域点不到，用近透明填充保证整个按钮可点击。 -->
+        <Setter Property="Background" Value="#01FFFFFF" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocusStyle}" />
+    </Style>
+
     <Style x:Key="CapsuleFocusStyle" TargetType="Control">
         <Setter Property="Template">
             <Setter.Value>
@@ -333,5 +345,25 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+    <Style x:Key="TokenChipStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource LinkSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource LinkBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="10,3" />
+        <Setter Property="Margin" Value="0,0,8,8" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource LinkHoverBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource LinkHoverBorderBrush}" />
+            </Trigger>
+            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <Setter Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

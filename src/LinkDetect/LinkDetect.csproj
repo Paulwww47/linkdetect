@@ -17,5 +17,17 @@
     <Resource Include="Assets\Fonts\*.ttf" />
     <Resource Include="Assets\app.ico" />
     <None Update="Assets\Fonts\LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Update="Assets\Jieba\LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="jieba.NET" Version="0.42.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Jieba\dict.txt" LogicalName="jieba/dict.txt" />
+    <EmbeddedResource Include="Assets\Jieba\prob_emit.json" LogicalName="jieba/prob_emit.json" />
+    <EmbeddedResource Include="Assets\Jieba\prob_trans.json" LogicalName="jieba/prob_trans.json" />
+    <EmbeddedResource Include="Assets\Jieba\char_state_tab.json" LogicalName="jieba/char_state_tab.json" />
   </ItemGroup>
 </Project>

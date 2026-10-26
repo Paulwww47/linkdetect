@@ -35,8 +35,22 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="CloseAllButton" Grid.Column="1" Style="{StaticResource CloseAllButtonStyle}"
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"
+                                Margin="0,0,8,0">
+                        <Button x:Name="TokenizeButton" Content="分词" Visibility="Collapsed"
+                                Style="{StaticResource TokenActionButtonStyle}"
+                                ToolTip="按词切分这段文本" Click="TokenizeButton_OnClick"
+                                AutomationProperties.Name="分词"
+                                AutomationProperties.HelpText="把复制的文本按词切分，之后可点选或拖动选词。" />
+                        <Button x:Name="CopyTextButton" Content="复制" Visibility="Collapsed"
+                                Style="{StaticResource TokenActionButtonStyle}"
+                                ToolTip="复制选中的词" Click="CopyTextButton_OnClick"
+                                AutomationProperties.Name="复制所选"
+                                AutomationProperties.HelpText="把选中的词按原文顺序写入剪贴板。" />
+                    </StackPanel>
+                    <Button x:Name="CloseAllButton" Grid.Column="2" Style="{StaticResource CloseAllButtonStyle}"
                             ToolTip="关闭全部（Esc）；按住拖动可移动卡片" AutomationProperties.Name="关闭全部"
                             AutomationProperties.HelpText="点击关闭全部；按住并拖动可移动卡片。"
                             PreviewMouseLeftButtonDown="CloseAllButton_OnPreviewMouseLeftButtonDown"
@@ -62,6 +76,27 @@
                                    AutomationProperties.Name="图片预览" />
                         </Border>
                         <ItemsControl x:Name="LinksList" />
+                        <ItemsControl x:Name="TokensList" Visibility="Collapsed" Margin="2,8,2,0"
+                                      Focusable="False"
+                                      PreviewMouseDown="TokensList_OnPreviewMouseDown"
+                                      PreviewMouseMove="TokensList_OnPreviewMouseMove"
+                                      PreviewMouseLeftButtonUp="TokensList_OnPreviewMouseLeftButtonUp"
+                                      LostMouseCapture="TokensList_OnLostMouseCapture">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource TokenChipStyle}" ToolTip="{Binding Text}"
+                                            AutomationProperties.Name="{Binding Text}">
+                                        <TextBlock Text="{Binding Text}" FontSize="14"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </ScrollViewer>
 
