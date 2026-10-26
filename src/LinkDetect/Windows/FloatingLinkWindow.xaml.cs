@@ -25,7 +25,6 @@ public partial class FloatingLinkWindow : Window
     private const uint MonitorDefaultToNearest = 0x00000002;
     private const double WorkAreaMargin = 12;
     private const double FullCardWidth = 456;
-    private const double CompactCardWidth = 152;
 
     private readonly SettingsService _settingsService;
     private readonly WordTokenizer _tokenizer;
@@ -736,9 +735,9 @@ public partial class FloatingLinkWindow : Window
             return;
         }
 
-        // 只有“分词”按钮时收窄卡片，不要留一条空白长条。
+        // 只有“分词”按钮时按内容收窄卡片，不要留一条空白长条，也不要裁掉关闭按钮。
         var compact = !_hasImage && !_state.IsVisible && _chips.Count == 0;
-        UpdateCardWidth(compact ? CompactCardWidth : FullCardWidth);
+        ApplySizeMode(compact);
 
         AutomationProperties.SetName(
             this,
@@ -750,12 +749,18 @@ public partial class FloatingLinkWindow : Window
             Show();
             UpdateLayout();
             ApplyInitialOrSavedPosition();
+            UpdateLayout();
             ClampToCurrentWorkArea();
             Opacity = 1;
         }
         else
         {
             UpdateLayout();
+            if (double.IsFinite(_anchoredRight))
+            {
+                Left = _anchoredRight - ActualWidth;
+            }
+
             ClampToCurrentWorkArea();
         }
 
@@ -763,21 +768,34 @@ public partial class FloatingLinkWindow : Window
         _anchoredRight = Left + ActualWidth;
     }
 
-    private void UpdateCardWidth(double width)
+    private void ApplySizeMode(bool compact)
     {
-        if (Math.Abs(Width - width) < 0.5)
+        if (compact)
         {
+            // 宽度按顶部按钮行的实际需要算，既不裁掉关闭按钮，也不留空白长条。
+            HeaderRow.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            var width = Math.Ceiling(HeaderRow.DesiredSize.Width) + 68;
+            if (SizeToContent != SizeToContent.Height)
+            {
+                SizeToContent = SizeToContent.Height;
+            }
+
+            if (Math.Abs(Width - width) >= 0.5)
+            {
+                Width = width;
+            }
+
             return;
         }
 
-        var right = double.IsFinite(_anchoredRight)
-            ? _anchoredRight
-            : Left + (ActualWidth > 0 ? ActualWidth : Width);
-        Width = width;
-
-        if (IsVisible)
+        if (SizeToContent != SizeToContent.Height)
         {
-            Left = right - width;
+            SizeToContent = SizeToContent.Height;
+        }
+
+        if (Math.Abs(Width - FullCardWidth) >= 0.5)
+        {
+            Width = FullCardWidth;
         }
     }
 
