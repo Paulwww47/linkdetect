@@ -29,6 +29,8 @@
     <SolidColorBrush x:Key="LinkHoverBorderBrush" Color="#D1DEF5" />
     <SolidColorBrush x:Key="CloseRingBrush" Color="#76869B" />
     <SolidColorBrush x:Key="CloseIconBrush" Color="#4F6078" />
+    <!-- 分层窗口里全透明像素收不到鼠标消息，用近透明填充让整块区域可交互。 -->
+    <SolidColorBrush x:Key="TransparentHitTargetBrush" Color="#01FFFFFF" />
 
     <Style x:Key="KeyboardFocusStyle" TargetType="Control">
         <Setter Property="Template">
@@ -166,7 +168,7 @@
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
         <!-- 分层窗口里全透明区域点不到，用近透明填充保证整个按钮可点击。 -->
-        <Setter Property="Background" Value="#01FFFFFF" />
+        <Setter Property="Background" Value="{StaticResource TransparentHitTargetBrush}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocusStyle}" />
     </Style>
 
