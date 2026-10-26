@@ -167,14 +167,14 @@
         <Setter Property="Height" Value="32" />
         <Setter Property="MinWidth" Value="32" />
         <Setter Property="MinHeight" Value="32" />
-        <Setter Property="Padding" Value="9" />
+        <Setter Property="Padding" Value="2" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Margin" Value="0,0,6,0" />
         <!-- 分层窗口里全透明区域点不到，用近透明填充保证整个圆可点击。 -->
         <Setter Property="Background" Value="{StaticResource TransparentHitTargetBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource CloseRingBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource CloseIconBrush}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource CapsuleFocusStyle}" />
         <Setter Property="Template">
             <Setter.Value>
@@ -195,6 +195,31 @@
                             <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}" />
                             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
                             <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FilledCountButtonStyle" TargetType="Button" BasedOn="{StaticResource RingIconButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SurfaceBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Ring" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1.2"
+                            CornerRadius="16" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Ring" Property="Background" Value="{StaticResource AccentHoverBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Ring" Property="Background" Value="{StaticResource AccentPressedBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

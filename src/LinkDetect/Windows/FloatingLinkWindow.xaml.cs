@@ -625,23 +625,24 @@ public partial class FloatingLinkWindow : Window
     private void UpdateSelectionStatus()
     {
         var selected = _chips.Count(chip => chip.IsSelected);
+        CopyTextButton.Style = (Style)FindResource(
+            selected > 0 ? "FilledCountButtonStyle" : "RingIconButtonStyle");
         CopyCountText.Text = selected.ToString();
+        CopyCountText.FontSize = selected < 10000 ? 12 : 10;
         CopyTextButton.IsEnabled = selected > 0;
-        CopyTextButton.Background = (MediaBrush)FindResource(
-            selected > 0 ? "AccentBrush" : "TransparentHitTargetBrush");
-        CopyTextButton.BorderBrush = (MediaBrush)FindResource(selected > 0 ? "AccentBrush" : "BorderBrush");
-        CopyTextButton.Foreground = (MediaBrush)FindResource(
-            selected > 0 ? "SurfaceBrush" : "DisabledForegroundBrush");
     }
 
     private void ShowCopyFeedback(string symbol, string detail, bool success)
     {
         _copyFeedbackTimer?.Stop();
-        CopyCountText.Text = symbol;
+        CopyTextButton.Style = (Style)FindResource("RingIconButtonStyle");
         CopyTextButton.Background = (MediaBrush)FindResource(success ? "SuccessBrush" : "ErrorSoftBrush");
         CopyTextButton.BorderBrush = (MediaBrush)FindResource(success ? "SuccessBrush" : "ErrorBrush");
         CopyTextButton.Foreground = (MediaBrush)FindResource(success ? "SurfaceBrush" : "ErrorBrush");
+        CopyTextButton.IsHitTestVisible = false;
         CopyTextButton.ToolTip = detail;
+        CopyCountText.Text = symbol;
+        CopyCountText.FontSize = 12;
         _copyFeedbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1400) };
         _copyFeedbackTimer.Tick += (_, _) => ResetCopyFeedback();
         _copyFeedbackTimer.Start();
@@ -651,6 +652,10 @@ public partial class FloatingLinkWindow : Window
     {
         _copyFeedbackTimer?.Stop();
         _copyFeedbackTimer = null;
+        CopyTextButton.IsHitTestVisible = true;
+        CopyTextButton.ClearValue(BackgroundProperty);
+        CopyTextButton.ClearValue(BorderBrushProperty);
+        CopyTextButton.ClearValue(ForegroundProperty);
         CopyTextButton.ToolTip = "复制选中的词";
         UpdateSelectionStatus();
     }
