@@ -11,7 +11,7 @@ public sealed record WordToken(string Text, int Start, int Length)
 
 public sealed class WordTokenizer
 {
-    public const int MaxTextLength = 1000;
+    public const int MaxTextLength = 3000;
 
     private const int MaxPieceLength = 3;
     private const string ResourcePrefix = "jieba/";

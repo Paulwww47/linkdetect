@@ -195,6 +195,7 @@
                             <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}" />
                             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
                             <Setter Property="Cursor" Value="Arrow" />
+                            <Setter Property="Opacity" Value="0.45" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

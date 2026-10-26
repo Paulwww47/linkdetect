@@ -402,11 +402,15 @@ public partial class FloatingLinkWindow : Window
                 return;
             }
 
+            // 一次性挂数据源：上千个词块逐个 Add 会触发上千次布局。
+            TokensList.ItemsSource = null;
             _chips.Clear();
             foreach (var token in tokens)
             {
                 _chips.Add(new TokenChip(token.Text, token.Start, token.Length));
             }
+
+            TokensList.ItemsSource = _chips;
 
             if (_chips.Count == 0)
             {
