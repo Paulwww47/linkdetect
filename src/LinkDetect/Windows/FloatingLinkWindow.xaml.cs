@@ -130,8 +130,8 @@ public partial class FloatingLinkWindow : Window
         ResetCopyFeedback();
         CopyTextButton.Visibility = Visibility.Collapsed;
         CopyTextButton.IsEnabled = false;
+        CopyCountText.Text = string.Empty;
         TokenizeButton.Visibility = Visibility.Visible;
-        TokenizeButton.Content = "分词";
 
         var tooLong = text.Length > WordTokenizer.MaxTextLength;
         TokenizeButton.IsEnabled = !tooLong;
@@ -156,12 +156,12 @@ public partial class FloatingLinkWindow : Window
 
     public void MarkTextCopied()
     {
-        ShowCopyFeedback("已复制", "已写入剪贴板，可直接粘贴。", "SuccessBrush");
+        ShowCopyFeedback("✓", "已写入剪贴板，可直接粘贴。", true);
     }
 
     public void MarkTextCopyFailed()
     {
-        ShowCopyFeedback("复制失败", "剪贴板被其他程序占用，请重试。", "ErrorBrush");
+        ShowCopyFeedback("!", "剪贴板被其他程序占用，请重试。", false);
     }
 
     public void MarkImageCopied()
@@ -392,7 +392,7 @@ public partial class FloatingLinkWindow : Window
         }
 
         TokenizeButton.IsEnabled = false;
-        TokenizeButton.Content = "分词中…";
+        TokenizeButton.ToolTip = "正在分词…";
 
         try
         {
@@ -410,8 +410,8 @@ public partial class FloatingLinkWindow : Window
 
             if (_chips.Count == 0)
             {
-                TokenizeButton.Content = "分词";
                 TokenizeButton.IsEnabled = true;
+                TokenizeButton.ToolTip = "按词切分这段文本";
                 return;
             }
 
@@ -423,7 +423,6 @@ public partial class FloatingLinkWindow : Window
         }
         catch (Exception)
         {
-            TokenizeButton.Content = "重试";
             TokenizeButton.IsEnabled = true;
             TokenizeButton.ToolTip = "词典资源不可用，请重新安装程序。";
         }
@@ -626,15 +625,22 @@ public partial class FloatingLinkWindow : Window
     private void UpdateSelectionStatus()
     {
         var selected = _chips.Count(chip => chip.IsSelected);
-        CopyTextButton.Content = selected > 0 ? $"复制 {selected}" : "复制";
+        CopyCountText.Text = selected.ToString();
         CopyTextButton.IsEnabled = selected > 0;
+        CopyTextButton.Background = (MediaBrush)FindResource(
+            selected > 0 ? "AccentBrush" : "TransparentHitTargetBrush");
+        CopyTextButton.BorderBrush = (MediaBrush)FindResource(selected > 0 ? "AccentBrush" : "BorderBrush");
+        CopyTextButton.Foreground = (MediaBrush)FindResource(
+            selected > 0 ? "SurfaceBrush" : "DisabledForegroundBrush");
     }
 
-    private void ShowCopyFeedback(string label, string detail, string brushKey)
+    private void ShowCopyFeedback(string symbol, string detail, bool success)
     {
         _copyFeedbackTimer?.Stop();
-        CopyTextButton.Content = label;
-        CopyTextButton.Foreground = (MediaBrush)FindResource(brushKey);
+        CopyCountText.Text = symbol;
+        CopyTextButton.Background = (MediaBrush)FindResource(success ? "SuccessBrush" : "ErrorSoftBrush");
+        CopyTextButton.BorderBrush = (MediaBrush)FindResource(success ? "SuccessBrush" : "ErrorBrush");
+        CopyTextButton.Foreground = (MediaBrush)FindResource(success ? "SurfaceBrush" : "ErrorBrush");
         CopyTextButton.ToolTip = detail;
         _copyFeedbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1400) };
         _copyFeedbackTimer.Tick += (_, _) => ResetCopyFeedback();
@@ -645,7 +651,6 @@ public partial class FloatingLinkWindow : Window
     {
         _copyFeedbackTimer?.Stop();
         _copyFeedbackTimer = null;
-        CopyTextButton.Foreground = (MediaBrush)FindResource("AccentBrush");
         CopyTextButton.ToolTip = "复制选中的词";
         UpdateSelectionStatus();
     }

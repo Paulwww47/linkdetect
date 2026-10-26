@@ -39,16 +39,22 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"
                                 Margin="0,0,8,0">
-                        <Button x:Name="TokenizeButton" Content="分词" Visibility="Collapsed"
-                                Style="{StaticResource TokenActionButtonStyle}"
+                        <Button x:Name="TokenizeButton" Visibility="Collapsed"
+                                Style="{StaticResource RingIconButtonStyle}"
                                 ToolTip="按词切分这段文本" Click="TokenizeButton_OnClick"
                                 AutomationProperties.Name="分词"
-                                AutomationProperties.HelpText="把复制的文本按词切分，之后可点选或拖动选词。" />
-                        <Button x:Name="CopyTextButton" Content="复制" Visibility="Collapsed"
-                                Style="{StaticResource TokenActionButtonStyle}"
+                                AutomationProperties.HelpText="把复制的文本按词切分，之后可点选或拖动选词。">
+                            <Path Data="M1,1 H5 V5 H1 Z M7,1 H11 V5 H7 Z M1,7 H5 V11 H1 Z M7,7 H11 V11 H7 Z"
+                                  Width="12" Height="12" Stretch="Uniform"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                        </Button>
+                        <Button x:Name="CopyTextButton" Visibility="Collapsed"
+                                Style="{StaticResource RingIconButtonStyle}"
                                 ToolTip="复制选中的词" Click="CopyTextButton_OnClick"
                                 AutomationProperties.Name="复制所选"
-                                AutomationProperties.HelpText="把选中的词按原文顺序写入剪贴板。" />
+                                AutomationProperties.HelpText="把选中的词按原文顺序写入剪贴板。">
+                            <TextBlock x:Name="CopyCountText" FontSize="12" FontWeight="SemiBold" />
+                        </Button>
                     </StackPanel>
                     <Button x:Name="CloseAllButton" Grid.Column="2" Style="{StaticResource CloseAllButtonStyle}"
                             ToolTip="关闭全部（Esc）；按住拖动可移动卡片" AutomationProperties.Name="关闭全部"
