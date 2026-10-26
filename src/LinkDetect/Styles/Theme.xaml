@@ -29,8 +29,6 @@
     <SolidColorBrush x:Key="LinkHoverBorderBrush" Color="#D1DEF5" />
     <SolidColorBrush x:Key="CloseRingBrush" Color="#76869B" />
     <SolidColorBrush x:Key="CloseIconBrush" Color="#4F6078" />
-    <SolidColorBrush x:Key="CardSurfaceBrush" Color="#A0F6F7F9" />
-    <SolidColorBrush x:Key="CardBorderBrush" Color="#B3E4E7ED" />
 
     <Style x:Key="KeyboardFocusStyle" TargetType="Control">
         <Setter Property="Template">
