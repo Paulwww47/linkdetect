@@ -36,7 +36,6 @@ public partial class FloatingLinkWindow : Window
     private bool _imageCanCopy;
     private bool _imageCopied;
     private string? _text;
-    private double _anchoredRight = double.NaN;
     private bool? _paintSelection;
     private bool _isPainting;
     private int _dragAnchorIndex = -1;
@@ -725,7 +724,6 @@ public partial class FloatingLinkWindow : Window
             _isDraggingFromClose = false;
             ClampToCurrentWorkArea();
             _settingsService.SaveWindowPosition(Left, Top);
-            _anchoredRight = Left + ActualWidth;
             _positionInitialized = true;
         }
     }
@@ -769,17 +767,10 @@ public partial class FloatingLinkWindow : Window
         }
         else
         {
+            // 宽度变化时保持左上角不动：拖到哪，下一次还在哪，只朝右侧伸缩。
             UpdateLayout();
-            if (double.IsFinite(_anchoredRight))
-            {
-                Left = _anchoredRight - ActualWidth;
-            }
-
             ClampToCurrentWorkArea();
         }
-
-        // 右边缘锚点：宽度变化时卡片贴着右边缘伸缩，不左右跳动。
-        _anchoredRight = Left + ActualWidth;
     }
 
     private void ApplySizeMode(bool compact)
